@@ -31,7 +31,7 @@
             "richtungsId": "1",
             "barrierFree": true,
             "realtimeSupported": true,
-            "trafficjam": false,
+            "trafficjam": true,
             "departures": {
               "departure": [
                 {
@@ -69,8 +69,8 @@
             ]
           },
           "properties": {
-            "name": "60201035",
-            "title": "Hütteldorfer Straße",
+            "name": "4320323",
+            "title": "KarlsplatzFake",
             "municipality": "Wien",
             "municipalityId": 90000,
             "type": "stop",
@@ -83,12 +83,12 @@
         "lines": [
           {
             "name": "49",
-            "towards": "Hütteldorf, Bujattig.",
+            "towards": "Spittelau.",
             "direction": "H",
             "richtungsId": "1",
             "barrierFree": false,
             "realtimeSupported": true,
-            "trafficjam": true,
+            "trafficjam": false,
             "departures": {
               "departure": [
                 {

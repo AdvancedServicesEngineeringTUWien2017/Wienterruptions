@@ -1,0 +1,13 @@
+CREATE TABLE Station (
+    id long Primary Key,
+    station varchar(255),
+    latitude float,
+    longitude float
+);
+
+CREATE TABLE Interruption (
+    id long Primary Key,
+    stationId long foreign key REFERENCES Station(id),
+    line varchar(255),
+    interruptiontype varchar(255)
+);
