@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.EventHubs;
+using Newtonsoft.Json;
 
 namespace Sensor
 {
@@ -18,6 +20,9 @@ namespace Sensor
         static void Main(string[] args)
         {
             MainAsync(args).GetAwaiter().GetResult();
+
+            Console.WriteLine("Press ENTER to exit...");
+            Console.ReadLine();
         }
 
         private static async Task MainAsync(string[] args)
@@ -29,33 +34,33 @@ namespace Sensor
 
             eventHubClient = EventHubClient.CreateFromConnectionString(connectionStringBuilder.ToString());
 
-            await SendMessagesToEventHub(15);
+            await SendMessagesToEventHub();
 
             await eventHubClient.CloseAsync();
-
-            Console.WriteLine("Press ENTER to exit...");
-            Console.ReadLine();
         }
 
-        private static async Task SendMessagesToEventHub(int numMessagesToSend)
+        private static async Task SendMessagesToEventHub()
         {
-            for (var i = 0; i < numMessagesToSend; i++)
+            //TODO read data from API
+            StreamReader reader = new StreamReader("DummyData.json");
+            string jsonData = reader.ReadToEnd();
+
+            dynamic deserializedData = JsonConvert.DeserializeObject(jsonData);
+            dynamic monitors = deserializedData.data.monitors;
+
+            foreach (dynamic monitor in monitors)
             {
                 try
                 {
-                    var message = $"{{id: {i}, message: 'Message {i}'}}";
-                    Console.WriteLine($"Sending message: {message}");
-                    await eventHubClient.SendAsync(new EventData(Encoding.UTF8.GetBytes(message))).ConfigureAwait(false);
+                    Console.WriteLine($"Sending message for '{monitor.locationStop.properties.title}'.");
+                    await eventHubClient.SendAsync(new EventData(Encoding.UTF8.GetBytes(monitor.ToString())))
+                        .ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
                     Console.WriteLine($"{DateTime.Now} > Exception: {exception.Message}");
                 }
-
-                await Task.Delay(10);
             }
-
-            Console.WriteLine($"{numMessagesToSend} messages sent.");
         }
     }
 }
