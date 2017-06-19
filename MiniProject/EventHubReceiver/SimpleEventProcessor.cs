@@ -33,7 +33,7 @@ namespace EventHubReceiver
             foreach (var eventData in messages)
             {
                 var data = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
-                Console.WriteLine($"Message recieved. Partition: '{context.PartitionId}', Data: '{data}'.");
+                Console.WriteLine($"{DateTime.Now.ToShortTimeString()} - Message recieved.\nPartition: '{context.PartitionId}',\nData:\n'{data}'.\n\n");
             }
 
             return context.CheckpointAsync();
