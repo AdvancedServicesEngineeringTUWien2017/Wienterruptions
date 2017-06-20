@@ -5,6 +5,14 @@
              x:Class="Wienterruptions.MainPage">
     <StackLayout>
         <Button
+            Text="Register DeviceID"
+            Clicked="RegisterButton_OnClicked"
+            ></Button>
+        <Button
+            Text="Connect to IoT Hub"
+            Clicked="ConnectButton_OnClicked"
+            ></Button>
+        <Button
             Text="Start Messaging"
             Clicked="StartButton_OnClicked"
             HorizontalOptions="Fill"

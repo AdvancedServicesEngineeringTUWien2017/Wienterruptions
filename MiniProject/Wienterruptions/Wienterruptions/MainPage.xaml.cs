@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Akavache;
 using Microsoft.Azure.Devices.Client;
+using Microsoft.Azure.Devices;
 using Newtonsoft.Json;
 using Xamarin.Forms;
 
@@ -14,23 +14,32 @@ namespace Wienterruptions
     {
         private static DeviceClient deviceClient;
         private static string iotHubUrl = "AseClientHub.azure-devices.net";
-        private static string deviceKey = "6GK+jes33g7i08OjNps0e1HpajFrl2You7U35zxpiaU=";
-        private static string deviceId = "XamarinClient";
+        private static string deviceGroupKey = "6GK+jes33g7i08OjNps0e1HpajFrl2You7U35zxpiaU=";
+        private static string deviceGroupId = "XamarinClient";
 
-        private static string connectionString =
-            $"HostName={iotHubUrl};DeviceId={deviceId};SharedAccessKey={deviceKey}";
+        
 
         private bool isMessaging = false;
         private bool isListening = false;
 
+        //TODO remove after integrating shared properties
+        private string temporaryDeviceId = null;
+
+        private string temporaryDeviceKey = null;
+
         public MainPage()
         {
             InitializeComponent();
+        }
 
-            BlobCache.ApplicationName = "XamarinClient";
+        private void RegisterButton_OnClicked(object sender, EventArgs e)
+        {
+            RegisterDeviceId();
+        }
 
-            //deviceClient = DeviceClient.Create(iotHubUrl, new DeviceAuthenticationWithRegistrySymmetricKey(deviceId, deviceKey));
-            deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Http1);
+        private void ConnectButton_OnClicked(object sender, EventArgs e)
+        {
+            ConnectToIoTHub();
         }
 
         private void StartButton_OnClicked(object sender, EventArgs e)
@@ -79,6 +88,7 @@ namespace Wienterruptions
             double minHumidity = 60;
             int messageId = 1;
             Random rand = new Random();
+            var deviceId = GetDeviceId();
 
             isMessaging = true;
             while (isMessaging)
@@ -102,6 +112,64 @@ namespace Wienterruptions
 
                 await Task.Delay(1000);
             }
+        }
+
+        private string GetDeviceId()
+        {
+            //TODO get id from storage
+            if (temporaryDeviceId == null)
+            {
+                temporaryDeviceId = Guid.NewGuid().ToString();
+            }
+            return temporaryDeviceId;
+        }
+
+        private void ConnectToIoTHub()
+        {
+            var deviceId = GetDeviceId();
+            string connectionString = $"HostName={iotHubUrl};DeviceId={deviceId};SharedAccessKey={temporaryDeviceKey}";
+            deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Http1);
+        }
+
+        private async void RegisterDeviceId()
+        {
+            string connectionString = $"HostName={iotHubUrl};DeviceId={deviceGroupId};SharedAccessKey={deviceGroupKey}";
+            DeviceClient registrationDeviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Http1);
+            var deviceId = GetDeviceId();
+            var handshakeId = Guid.NewGuid().ToString();
+
+            var messageData = new
+            {
+                deviceId = deviceId,
+                handshakeId = handshakeId
+            };
+            var messageJson = JsonConvert.SerializeObject(messageData);
+
+            var message = new Message(Encoding.UTF8.GetBytes(messageJson));
+            message.Properties.Add("type", "register");
+
+            await registrationDeviceClient.SendEventAsync(message);
+
+            while (temporaryDeviceKey == null)
+            {
+                var response = await registrationDeviceClient.ReceiveAsync();
+                if (response == null)
+                {
+                    continue;
+                }
+
+                var bytes = response.GetBytes();
+                var responseString = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+                dynamic responseObject = JsonConvert.DeserializeObject(responseString);
+                var responseHandshakeId = responseObject.handshakeId.ToString();
+                if (responseObject.handshakeId.ToString() == handshakeId)
+                {
+                    temporaryDeviceKey = responseObject.primaryKey;
+                }
+                await registrationDeviceClient.CompleteAsync(response);
+            }
+
+            await registrationDeviceClient.CloseAsync();
         }
     }
 }
