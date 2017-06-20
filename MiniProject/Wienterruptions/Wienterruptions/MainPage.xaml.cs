@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Akavache;
 using Microsoft.Azure.Devices.Client;
 using Newtonsoft.Json;
 using Xamarin.Forms;
@@ -18,30 +19,72 @@ namespace Wienterruptions
 
         private static string connectionString =
             $"HostName={iotHubUrl};DeviceId={deviceId};SharedAccessKey={deviceKey}";
+
+        private bool isMessaging = false;
+        private bool isListening = false;
+
         public MainPage()
         {
             InitializeComponent();
+
+            BlobCache.ApplicationName = "XamarinClient";
 
             //deviceClient = DeviceClient.Create(iotHubUrl, new DeviceAuthenticationWithRegistrySymmetricKey(deviceId, deviceKey));
             deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Http1);
         }
 
-        private void Button_OnClicked(object sender, EventArgs e)
+        private void StartButton_OnClicked(object sender, EventArgs e)
         {
+            StatusLabel.Text = "Sending messages";
             SendDeviceToCloudMessageAsync();
         }
 
-        private static async void SendDeviceToCloudMessageAsync()
+        private void StopButton_OnClicked(object sender, EventArgs e)
+        {
+            StatusLabel.Text = "Not sending messages";
+            isMessaging = false;
+        }
+
+        private void StartListening_OnClicked(object sender, EventArgs e)
+        {
+            LogLabel.Text = "Listening for messages...";
+            ReceiveCloudToDeviceMessagesAsync();
+        }
+
+        private void StopListening_OnClicked(object sender, EventArgs e)
+        {
+            isListening = false;
+        }
+
+        private async void ReceiveCloudToDeviceMessagesAsync()
+        {
+            isListening = true;
+            while (isListening)
+            {
+                var message = await deviceClient.ReceiveAsync();
+                if (message == null)
+                {
+                    continue;
+                }
+
+                var bytes = message.GetBytes();
+                LogLabel.Text += "\n" + Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+                await deviceClient.CompleteAsync(message);
+            }
+        }
+
+        private async void SendDeviceToCloudMessageAsync()
         {
             double minTemperature = 20;
             double minHumidity = 60;
             int messageId = 1;
             Random rand = new Random();
 
-            while (true)
+            isMessaging = true;
+            while (isMessaging)
             {
                 double currentTemperature = minTemperature + rand.NextDouble() * 15;
-                double currentHumidity = minTemperature + rand.NextDouble() * 20;
+                double currentHumidity = minHumidity + rand.NextDouble() * 20;
 
                 var telemetryDataPoint = new
                 {

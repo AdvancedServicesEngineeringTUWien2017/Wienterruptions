@@ -3,7 +3,38 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Wienterruptions"
              x:Class="Wienterruptions.MainPage">
-
-	<Button Text="Start Messaging" Clicked="Button_OnClicked"></Button>
+    <StackLayout>
+        <Button
+            Text="Start Messaging"
+            Clicked="StartButton_OnClicked"
+            HorizontalOptions="Fill"
+        />
+        <Button
+            Text="Stop Messaging"
+            Clicked="StopButton_OnClicked"
+            HorizontalOptions="Fill"
+        />
+        <Label
+            x:Name="StatusLabel"
+            Text="Not sending messages"
+            HorizontalOptions="Fill"
+            />
+        <Button
+            Text="Start Listening"
+            Clicked="StartListening_OnClicked"
+            HorizontalOptions="Fill"
+        />
+        <Button
+            Text="Stop Listening"
+            Clicked="StopListening_OnClicked"
+            HorizontalOptions="Fill"
+        />
+        <Label
+            x:Name="LogLabel"
+            Text=""
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            />
+    </StackLayout>
 
 </ContentPage>
