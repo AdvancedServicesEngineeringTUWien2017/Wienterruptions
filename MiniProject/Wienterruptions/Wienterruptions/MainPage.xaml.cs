@@ -129,13 +129,13 @@ namespace Wienterruptions
 
         private string GetDeviceId()
         {
-            //TODO get id from storage
-            /*if (temporaryDeviceId == null)
+            if (!Application.Current.Properties.ContainsKey("deviceId"))
             {
-                temporaryDeviceId = Guid.NewGuid().ToString();
+                Application.Current.Properties.Add("deviceId", Guid.NewGuid().ToString());
             }
-            return temporaryDeviceId;*/
-            return "db26b90c-0b71-4e88-836b-7cae3d772e8c";
+
+            var deviceId = (string)Application.Current.Properties["deviceId"];
+            return deviceId;
         }
 
         private void ConnectToIoTHub()
