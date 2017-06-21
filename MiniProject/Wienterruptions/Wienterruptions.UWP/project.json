@@ -3,6 +3,7 @@
     "Microsoft.Azure.Devices.Client.PCL": "1.0.16",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
     "Newtonsoft.Json": "10.0.3",
+    "Xam.Plugin.Geolocator": "3.0.4",
     "Xamarin.Forms": "2.3.4.224"
   },
   "frameworks": {

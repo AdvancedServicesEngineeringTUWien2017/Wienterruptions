@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Plugin.Geolocator;
 using Xamarin.Forms;
 
 namespace Wienterruptions
@@ -39,26 +41,46 @@ namespace Wienterruptions
             ConnectToIoTHub();
         }
 
-        private void StartButton_OnClicked(object sender, EventArgs e)
-        {
-            StatusLabel.Text = "Sending messages";
-            SendDeviceToCloudMessageAsync();
-        }
-
-        private void StopButton_OnClicked(object sender, EventArgs e)
-        {
-            StatusLabel.Text = "Not sending messages";
-        }
-
         private void StartListening_OnClicked(object sender, EventArgs e)
         {
-            LogLabel.Text = "Listening for messages...";
+            AddLogEntry("Started listening for messages...");
             ReceiveCloudToDeviceMessagesAsync();
         }
 
         private void StopListening_OnClicked(object sender, EventArgs e)
         {
             isListening = false;
+            AddLogEntry("Stopped listening for messages.");
+        }
+
+        private void SendSettings_OnClicked(object sender, EventArgs e)
+        {
+            SendSettingsToCloudAsync();
+        }
+
+        private void UpdateLocation_OnClicked(object sender, EventArgs e)
+        {
+            UpdateLocationAsync();
+        }
+
+        private async void UpdateLocationAsync()
+        {
+            try
+            {
+                AddLogEntry("Updating location...");
+                var locator = CrossGeolocator.Current;
+                locator.DesiredAccuracy = 20; //TODO make more accurate?
+
+                var position = await locator.GetPositionAsync(10000);
+
+                LongitudeEntry.Text = position.Longitude.ToString("##.######");
+                LatitudeEntry.Text = position.Latitude.ToString("##.######");
+                AddLogEntry("...done");
+            }
+            catch (Exception e)
+            {
+                AddLogEntry("...failed");
+            }
         }
 
         private async void ReceiveCloudToDeviceMessagesAsync()
@@ -73,64 +95,64 @@ namespace Wienterruptions
                 }
 
                 var bytes = message.GetBytes();
-                LogLabel.Text += "\n" + Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+                JObject metadata = (JObject)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(bytes, 0, bytes.Length));
+                AddInterruptionEntry(metadata);
                 await deviceClient.CompleteAsync(message);
             }
         }
 
-        private async void SendDeviceToCloudMessageAsync()
+        private async void SendSettingsToCloudAsync()
         {
+            AddLogEntry("Sending device settings to cloud...");
             var messageId = Guid.NewGuid();
             var deviceId = GetDeviceId();
 
-            var dataPoint1 = new
-            {
-                messageId = messageId,
-                deviceId = deviceId,
-                line = "49"
-            };
+            JObject messageObject = new JObject();
+            messageObject["messageId"] = messageId;
+            messageObject["deviceId"] = deviceId;
+            messageObject["lines"] = JToken.Parse(LinesEntry.Text);
 
-            messageId = Guid.NewGuid();
-            var dataPoint2 = new
-            {
-                messageId = messageId,
-                deviceId = deviceId,
-                line = "N49"
-            };
+            JObject location = new JObject();
+            location["type"] = "Point";
+            double[] coordinates = {Double.Parse(LongitudeEntry.Text), Double.Parse(LatitudeEntry.Text)};
+            location["coordinates"] = JToken.FromObject(coordinates);
 
-            var messageString = JsonConvert.SerializeObject(dataPoint1);
+            messageObject["location"] = location;
+
+            var messageString = JsonConvert.SerializeObject(messageObject);
             var message = new Message(Encoding.UTF8.GetBytes(messageString));
             message.Properties.Add("type", "userdata");
             await deviceClient.SendEventAsync(message);
 
-            messageString = JsonConvert.SerializeObject(dataPoint2);
-            message = new Message(Encoding.UTF8.GetBytes(messageString));
-            message.Properties.Add("type", "userdata");
-            await deviceClient.SendEventAsync(message);
+            AddLogEntry("...sent");
         }
 
         private string GetDeviceId()
         {
             //TODO get id from storage
-            if (temporaryDeviceId == null)
+            /*if (temporaryDeviceId == null)
             {
                 temporaryDeviceId = Guid.NewGuid().ToString();
             }
-            return temporaryDeviceId;
+            return temporaryDeviceId;*/
+            return "db26b90c-0b71-4e88-836b-7cae3d772e8c";
         }
 
         private void ConnectToIoTHub()
         {
             var deviceId = GetDeviceId();
+            AddLogEntry("Connecting with device id '" + deviceId + "'...");
             string connectionString = $"HostName={iotHubUrl};DeviceId={deviceId};SharedAccessKey={temporaryDeviceKey}";
             deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Http1);
+            AddLogEntry("...connected");
         }
 
         private async void RegisterDeviceId()
         {
+            var deviceId = GetDeviceId();
+            AddLogEntry("Registering device id '" + deviceId + "'...");
             string connectionString = $"HostName={iotHubUrl};DeviceId={deviceGroupId};SharedAccessKey={deviceGroupKey}";
             DeviceClient registrationDeviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Http1);
-            var deviceId = GetDeviceId();
             var handshakeId = Guid.NewGuid().ToString();
 
             var messageData = new
@@ -165,7 +187,40 @@ namespace Wienterruptions
             }
 
             await registrationDeviceClient.CloseAsync();
-            StatusLabel.Text = "Finished registering";
+            AddLogEntry("...registered");
+        }
+
+        private void AddLogEntry(string message)
+        {
+            Label label = new Label();
+            label.Text = message;
+            LogList.Children.Insert(0, label);
+        }
+
+        private void AddInterruptionEntry(JObject metadata)
+        {
+            Label label = new Label();
+
+            StringBuilder messageBuilder = new StringBuilder("Interruption:\nLine: ");
+            messageBuilder.Append(metadata["linename"]);
+            messageBuilder.Append("\nTowards: ");
+            messageBuilder.Append(metadata["towards"]);
+            messageBuilder.Append("\nStation: ");
+            messageBuilder.Append(metadata["station"]);
+            var distance = metadata["distance"];
+            if (distance != null)
+            {
+                messageBuilder.Append("\nDistance: ");
+                messageBuilder.Append(metadata["distance"]);
+                double distanceValue = Double.Parse(distance.ToString());
+                if (distanceValue < 500)
+                {
+                    label.TextColor = Color.Crimson;
+                }
+            }
+            
+            label.Text = messageBuilder.ToString();
+            LogList.Children.Insert(0, label);
         }
     }
 }

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Wienterruptions"
              x:Class="Wienterruptions.MainPage">
-    <StackLayout>
+    <!--<StackLayout>
         <Button
             Text="Register DeviceID"
             Clicked="RegisterButton_OnClicked"
@@ -43,6 +43,94 @@
             HorizontalOptions="Fill"
             VerticalOptions="Fill"
             />
-    </StackLayout>
+    </StackLayout> -->
 
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ScrollView
+            x:Name="LogView"
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+        >
+            <StackLayout
+                x:Name="LogList">
+            </StackLayout>
+        </ScrollView>
+        <Label
+            Text="Line Filter:"
+            Grid.Row="1"
+            Grid.Column="0"
+            />
+        <Entry
+            x:Name="LinesEntry"
+            Text="['U1','U2','U3','U4','U6','D','O']"
+            Grid.Row="1"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"></Entry>
+        <Label
+            Text="Longitude:"
+            Grid.Row="2"
+            Grid.Column="0"
+        />
+        <Entry
+            x:Name="LongitudeEntry"
+            Text="16.366233"
+            Grid.Row="2"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"></Entry>
+        <Label
+            Text="Latitude:"
+            Grid.Row="3"
+            Grid.Column="0"
+        />
+        <Entry
+            x:Name="LatitudeEntry"
+            Text="48.199744"
+            Grid.Row="3"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"></Entry>
+        <Button
+            Grid.Row="4"
+            Grid.Column="0"
+            Text="Send Settings"
+            Clicked="SendSettings_OnClicked"/>
+        <Button
+            Grid.Row="4"
+            Grid.Column="1"
+            Text="Update Location"
+            Clicked="UpdateLocation_OnClicked"/>
+        <Button
+            Grid.Row="4"
+            Grid.Column="2"
+            Text="Start Listening"
+            Clicked="StartListening_OnClicked"/>
+        <Button
+            Grid.Row="5"
+            Grid.Column="0"
+            Text="Register Device"
+            Clicked="RegisterButton_OnClicked"/>
+        <Button
+            Grid.Row="5"
+            Grid.Column="1"
+            Text="Connect Device"
+            Clicked="ConnectButton_OnClicked"/>
+        <Button
+            Grid.Row="5"
+            Grid.Column="2"
+            Text="Stop Listening"
+            Clicked="StopListening_OnClicked"/>
+    </Grid>
 </ContentPage>
