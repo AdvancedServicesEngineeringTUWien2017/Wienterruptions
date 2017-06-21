@@ -1,4 +1,3 @@
-[
 {
 "locationStop": {
   "type": "Feature",
@@ -23,7 +22,7 @@
 },
 "lines": [
   {
-	"name": "N49",
+	"name": "U1",
 	"towards": "Hütteldorf",
 	"direction": "H",
 	"richtungsId": "1",
@@ -52,7 +51,7 @@
 	"lineId": 549
   },
 			{
-	"name": "N48",
+	"name": "U2",
 	"towards": "Richy",
 	"direction": "H",
 	"richtungsId": "1",
@@ -84,86 +83,4 @@
 "refTrafficInfoNames": [
   "tk_-444190366"
 ]
-},
-{
-"locationStop": {
-  "type": "Feature",
-  "geometry": {
-	"type": "Point",
-	"coordinates": [
-	  16.312048857547,
-	  48.1990873871873
-	]
-  },
-  "properties": {
-	"name": "60201035",
-	"title": "Hütteldorfer Straße",
-	"municipality": "Wien",
-	"municipalityId": 90000,
-	"type": "stop",
-	"coordName": "WGS84",
-	"attributes": {
-	  "rbl": 1450
-	}
-  }
-},
-"lines": [
-  {
-	"name": "49",
-	"towards": "Hütteldorf, Bujattig.",
-	"direction": "H",
-	"richtungsId": "1",
-	"barrierFree": false,
-	"realtimeSupported": true,
-	"trafficjam": true,
-	"departures": {
-	  "departure": [
-		{
-		  "departureTime": {
-			"timePlanned": "2013-08-07T05:00:00.000+0200",
-			"countdown": 155
-		  }
-		},
-		{
-		  "departureTime": {
-			"timePlanned": "2013-08-07T05:03:00.000+0200",
-			"countdown": 158
-		  },
-		  "vehicle": {
-			"name": "49",
-			"towards": "Breitensee S",
-			"direction": "H",
-			"richtungsId": "1",
-			"barrierFree": false,
-			"realtimeSupported": true,
-			"trafficjam": false,
-			"type": "ptTram"
-		  }
-		}
-	  ]
-	},
-	"type": "ptTram"
-  }
-]
 }
-],
-"trafficInfos": [
-{
-"refTrafficInfoCategoryId": 3,
-"name": "tk_-444190366",
-"priority": "1",
-"owner": "WL",
-"title": "Haltestelle \nzur Breitenseer Straße 8 verlegt",
-"description": "Haltestelle \nzur Breitenseer Straße 8 verlegt",
-"time": {
-  "start": "2013-07-31T00:15:00.000+0200",
-  "end": "2013-08-10T05:00:00.000+0200"
-},
-"relatedLines": [
-  "N49"
-],
-"relatedStops": [
-  1450
-]
-}
-]

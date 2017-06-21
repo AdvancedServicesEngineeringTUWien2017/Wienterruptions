@@ -43,15 +43,25 @@ namespace Sensor
 			StreamReader reader = new StreamReader("DummyData.json");
 			string jsonData = reader.ReadToEnd();
 
+			//string[] lines = { "U1", "U2", "U3", "U4", "U6", "D", "O" };
+			Random random = new Random();
+
 			dynamic deserializedData = JsonConvert.DeserializeObject(jsonData);
 			dynamic monitors = deserializedData.data.monitors;
 			do
 			{
 				foreach (dynamic monitor in monitors)
 				{
+					foreach (dynamic line in monitor.lines)
+					{
+						line.trafficjam = random.NextDouble() < 0.4;
+						Console.WriteLine($"Line: {line.name}. Trafficjam: {line.trafficjam}");
+					}
+
 					try
 					{
-						Console.WriteLine($"Sending message for '{monitor.locationStop.properties.title}'.");
+						//Console.WriteLine($"Sending message for '{monitor.locationStop.properties.title}'.");
+						//Console.WriteLine($"Message: {monitor.ToString()}");
 						await eventHubClient.SendAsync(new EventData(Encoding.UTF8.GetBytes(monitor.ToString()))).ConfigureAwait(false);
 						await Task.Delay(TimeSpan.FromMilliseconds(10));
 					}
