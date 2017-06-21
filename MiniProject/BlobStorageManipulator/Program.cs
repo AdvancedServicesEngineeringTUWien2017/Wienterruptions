@@ -55,7 +55,6 @@ namespace BlobStorageManipulator
                     JObject entry = new JObject();
                     entry["deviceId"] = deviceId;
                     entry["line"] = random.Next(1, 50);
-
                     uploadBuilder.AppendLine(JsonConvert.SerializeObject(entry));
                 }
 
