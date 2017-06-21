@@ -17,9 +17,6 @@ namespace Wienterruptions
         private static string deviceGroupKey = "6GK+jes33g7i08OjNps0e1HpajFrl2You7U35zxpiaU=";
         private static string deviceGroupId = "XamarinClient";
 
-        
-
-        private bool isMessaging = false;
         private bool isListening = false;
 
         //TODO remove after integrating shared properties
@@ -51,7 +48,6 @@ namespace Wienterruptions
         private void StopButton_OnClicked(object sender, EventArgs e)
         {
             StatusLabel.Text = "Not sending messages";
-            isMessaging = false;
         }
 
         private void StartListening_OnClicked(object sender, EventArgs e)
@@ -84,34 +80,33 @@ namespace Wienterruptions
 
         private async void SendDeviceToCloudMessageAsync()
         {
-            double minTemperature = 20;
-            double minHumidity = 60;
-            int messageId = 1;
-            Random rand = new Random();
+            var messageId = Guid.NewGuid();
             var deviceId = GetDeviceId();
 
-            isMessaging = true;
-            while (isMessaging)
+            var dataPoint1 = new
             {
-                double currentTemperature = minTemperature + rand.NextDouble() * 15;
-                double currentHumidity = minHumidity + rand.NextDouble() * 20;
+                messageId = messageId,
+                deviceId = deviceId,
+                line = "49"
+            };
 
-                var telemetryDataPoint = new
-                {
-                    messageId = messageId++,
-                    deviceId = deviceId,
-                    temperature = currentTemperature,
-                    humidity = currentHumidity
-                };
+            messageId = Guid.NewGuid();
+            var dataPoint2 = new
+            {
+                messageId = messageId,
+                deviceId = deviceId,
+                line = "N49"
+            };
 
-                var messageString = JsonConvert.SerializeObject(telemetryDataPoint);
-                var message = new Message(Encoding.UTF8.GetBytes(messageString));
-                message.Properties.Add("temperatureAlert", (currentTemperature > 30) ? "true" : "false");
+            var messageString = JsonConvert.SerializeObject(dataPoint1);
+            var message = new Message(Encoding.UTF8.GetBytes(messageString));
+            message.Properties.Add("type", "userdata");
+            await deviceClient.SendEventAsync(message);
 
-                await deviceClient.SendEventAsync(message);
-
-                await Task.Delay(1000);
-            }
+            messageString = JsonConvert.SerializeObject(dataPoint2);
+            message = new Message(Encoding.UTF8.GetBytes(messageString));
+            message.Properties.Add("type", "userdata");
+            await deviceClient.SendEventAsync(message);
         }
 
         private string GetDeviceId()
@@ -170,6 +165,7 @@ namespace Wienterruptions
             }
 
             await registrationDeviceClient.CloseAsync();
+            StatusLabel.Text = "Finished registering";
         }
     }
 }
