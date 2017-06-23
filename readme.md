@@ -118,7 +118,7 @@ private async static Task SendCloudToDeviceMessageAsync(string key)
     await serviceClient.SendAsync("XamarinClient", commandMessage);
      logger.Info("Message is sent");
 }
-´´´
+```
 
 #### UserSettingsTrigger
 Message type: Service Bus Topic
@@ -180,7 +180,7 @@ public static void Run(string mySbMsg, TraceWriter log)
      string upload = uploadBuilder.ToString();
      blob.UploadText(upload);
 }
-´´´
+```
 
 #### NotifyUserTrigger
 Message type: Service Bus Topic
@@ -215,7 +215,7 @@ public static void Run(string mySbMsg, TraceWriter log)
     log.Info($"Send interruption to Device {deviceId}");
     serviceClient.SendAsync(deviceId.ToString(), commandMessage);
 }
-´´´
+```
 
 ### Stream Analytics
 Create a new Stream Analytics Job
@@ -243,4 +243,4 @@ FROM SensorInput L1
     on line.ArrayValue.name = L2.line
 WHERE
     line.ArrayValue.trafficjam = 1
-´´´
+```
