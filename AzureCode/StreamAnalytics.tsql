@@ -1,0 +1,14 @@
+SELECT
+    line.ArrayValue.name as linename,
+    line.ArrayValue.towards,
+    L1.locationStop.properties.title as station,
+    L2.deviceId,
+    ST_DISTANCE(L1.locationStop.geometry, L2.location) as distance
+INTO
+    IoTOutput
+FROM SensorInput L1
+    CROSS APPLY GetArrayElements(L1.lines) AS line
+    Join  UserReferenceInput L2
+    on line.ArrayValue.name = L2.line
+WHERE
+    line.ArrayValue.trafficjam = 1
