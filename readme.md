@@ -223,7 +223,7 @@ Create a new Stream Analytics Job
 Add the following inputs:
 
 * SensorInput from Event Hub
-* UserReferenceInput from Blob storage
+* UserReferenceInput from Blob storage linked to userreferencdata
 
 Add the following outputs:
 
