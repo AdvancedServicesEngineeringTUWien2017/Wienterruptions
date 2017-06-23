@@ -221,10 +221,12 @@ public static void Run(string mySbMsg, TraceWriter log)
 Create a new Stream Analytics Job
 
 Add the following inputs:
+
 * SensorInput from Event Hub
 * UserReferenceInput from Blob storage
 
 Add the following outputs:
+
 * IoTOutput with Service bus Topic as sink
 
 Set the following query:
