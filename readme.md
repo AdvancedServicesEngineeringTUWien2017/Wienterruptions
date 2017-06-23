@@ -7,6 +7,9 @@ interruption which occur at those lines or are near him.
 We used Xamarin as framework for the App. The App is sending User Settings via EventHubs to an Azure cloud where the Sensor Data from Wiener Linien is processed.
 The result is then sent back to the clients via IoT Hubs. The client will display the results. 
 
+#Note
+All connection strings and blade names need to be changed in the source code!!
+
 #How to set up the Azure Cloud
 
 ## Add needed Blades
