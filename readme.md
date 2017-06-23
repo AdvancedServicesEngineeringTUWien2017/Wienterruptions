@@ -3,14 +3,14 @@ The goal of this project was to implement an app that will notify the user about
 The user should have the possibility to register for some lines he wishes to observe, as well as register with his GPS coordinates and get notifications about all 
 interruption which occur at those lines or are near him. 
 
-#Implementation
+# Implementation
 We used Xamarin as framework for the App. The App is sending User Settings via EventHubs to an Azure cloud where the Sensor Data from Wiener Linien is processed.
 The result is then sent back to the clients via IoT Hubs. The client will display the results. 
 
-#Note
+# Note
 All connection strings and blade names need to be changed in the source code!!
 
-#How to set up the Azure Cloud
+# How to set up the Azure Cloud
 
 ## Add needed Blades
 
